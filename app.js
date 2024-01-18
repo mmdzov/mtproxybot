@@ -16,57 +16,55 @@ let scripts = {
   run: "curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh",
 };
 
-(async () => {
-  // if (process.env.NODE_ENV?.includes("development")) {
-  //     console.log("development mode selected");
-  //     const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
+// if (process.env.NODE_ENV?.includes("development")) {
+//     console.log("development mode selected");
+//     const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
 
-  //     bot = new Bot(process.env.TOKEN, {
-  //       client: {
-  //         baseFetchConfig: {
-  //           agent: socksAgent,
-  //         },
-  //       },
-  //     });
-  //   } else
+//     bot = new Bot(process.env.TOKEN, {
+//       client: {
+//         baseFetchConfig: {
+//           agent: socksAgent,
+//         },
+//       },
+//     });
+//   } else
 
-  bot = new Bot(process.env.TOKEN);
+bot = new Bot(process.env.TOKEN);
 
 //   const me = await bot.api.getMe();
 
 //   console.log(me);
 
-  const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
-    exec(`${scripts.run} 1`, (err, stdout, stderr) => {
-      console.log(err, stdout, stderr);
-      if (err) {
-        console.log(err);
-        return;
-      }
+const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
+  exec(`${scripts.run} 1`, (err, stdout, stderr) => {
+    console.log(err, stdout, stderr);
+    if (err) {
+      console.log(err);
+      return;
+    }
 
-      console.log(stdout);
-    });
+    console.log(stdout);
   });
+});
 
-  bot.use(mainMenu);
+bot.use(mainMenu);
 
-  bot.on("message", (ctx, next) => {
-    ctx.reply("bot is alive");
+bot.on("message", (ctx, next) => {
+  ctx.reply("bot is alive");
 
-    return next();
+  return next();
+});
+
+bot.command("start", (ctx) => {
+  ctx.reply("select an option:", {
+    reply_markup: mainMenu,
   });
+});
 
-  bot.command("start", (ctx) => {
-    ctx.reply("select an option:", {
-      reply_markup: mainMenu,
-    });
-  });
+bot.catch((err) => {
+  console.log(err);
+});
 
-  bot.catch((err) => {
-    console.log(err);
-  });
+const runner = run(bot);
 
-  const runner = run(bot);
-
-  if (runner.isRunning()) console.log("Bot has started :)");
-})();
+if (runner.isRunning()) console.log("Bot has started :)");
