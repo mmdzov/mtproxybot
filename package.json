@@ -4,7 +4,8 @@
   "description": "Manage your mtproto proxies in Telegram bot",
   "main": "index.js",
   "scripts": {
-    "dev": "set NODE_ENV=development && nodemon app"
+    "dev": "set NODE_ENV=development && nodemon app",
+    "start": "nodemon app"
   },
   "repository": {
     "type": "git",
