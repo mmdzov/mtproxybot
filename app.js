@@ -35,7 +35,9 @@ bot = new Bot(process.env.TOKEN);
 
 //   console.log(me);
 
-const backToMainMenu = new Menu("back-to-main").back("<< Back");
+const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
+  ctx.editMessageText("select an option:");
+});
 
 bot.use(backToMainMenu);
 
@@ -53,7 +55,7 @@ const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
 
     output = output.join("\n");
 
-    await ctx.reply(output, {
+    await ctx.editMessageText(output, {
       reply_markup: backToMainMenu,
     });
   });
