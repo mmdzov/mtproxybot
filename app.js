@@ -103,7 +103,7 @@ Your current AD Tag: <pre>${output}</pre>
     );
 
     ctx.session.waitForAdTag = true;
-    waitForAdTagMsgIds = [ctx.message.message_id];
+    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id];
   });
 
 mainMenu.register(backToMainMenu);
