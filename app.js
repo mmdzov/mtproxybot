@@ -51,7 +51,7 @@ const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
 
     output.shift();
 
-    output.join("\n");
+    output = output.join("\n");
 
     await ctx.reply(output, {
       reply_markup: backToMainMenu,
