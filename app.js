@@ -30,7 +30,6 @@ let scripts = {
     });
   } else bot = new Bot(process.env.TOKEN);
 
-  await bot.init();
   const me = await bot.api.getMe();
 
   console.log(me);
