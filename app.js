@@ -35,31 +35,31 @@ bot = new Bot(process.env.TOKEN);
 
 //   console.log(me);
 
-const backMenu = new Menu("back").back("<< Back");
+const backToMainMenu = new Menu("back-to-main").back("<< Back");
 
-bot.use(backMenu);
+bot.use(backToMainMenu);
 
-const mainMenu = new Menu("main-menu")
-  .text("View all links", (ctx) => {
-    exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
-      console.log(err, stdout, stderr);
-      if (err) {
-        console.log(err);
-        return;
-      }
+const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
+  exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
+    console.log(err, stdout, stderr);
+    if (err) {
+      console.log(err);
+      return;
+    }
 
-      let output = stdout.split("\n");
+    let output = stdout.split("\n");
 
-      output.shift();
+    output.shift();
 
-      output = output.join("\n");
+    output = output.join("\n");
 
-      await ctx.reply(output, {
-        reply_markup: backMenu,
-      });
+    await ctx.reply(output, {
+      reply_markup: backToMainMenu,
     });
-  })
-  .submenu("links", "back");
+  });
+});
+
+mainMenu.register(backToMainMenu);
 
 bot.use(mainMenu);
 
