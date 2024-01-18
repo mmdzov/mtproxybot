@@ -17,22 +17,24 @@ let scripts = {
 };
 
 (async () => {
-  if (process.env.NODE_ENV?.includes("development")) {
-    console.log("development mode selected");
-    const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
+  // if (process.env.NODE_ENV?.includes("development")) {
+  //     console.log("development mode selected");
+  //     const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
 
-    bot = new Bot(process.env.TOKEN, {
-      client: {
-        baseFetchConfig: {
-          agent: socksAgent,
-        },
-      },
-    });
-  } else bot = new Bot(process.env.TOKEN);
+  //     bot = new Bot(process.env.TOKEN, {
+  //       client: {
+  //         baseFetchConfig: {
+  //           agent: socksAgent,
+  //         },
+  //       },
+  //     });
+  //   } else
 
-  const me = await bot.api.getMe();
+  bot = new Bot(process.env.TOKEN);
 
-  console.log(me);
+//   const me = await bot.api.getMe();
+
+//   console.log(me);
 
   const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
     exec(`${scripts.run} 1`, (err, stdout, stderr) => {
