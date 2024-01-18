@@ -84,19 +84,31 @@ const mainMenu = new Menu("main-menu")
 
       let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-      ctx.editMessageText(
-        `
-Your current AD Tag: <pre>${output}</pre>
-      `,
-        {
-          reply_markup: backToMainMenu,
-          parse_mode: "HTML",
-        },
-      );
+      try {
+        await ctx.editMessageText(
+          `
+    Your current AD Tag: <pre>${output}</pre>
+          `,
+          {
+            reply_markup: backToMainMenu,
+            parse_mode: "HTML",
+          },
+        );
+      } catch (e) {
+        await ctx.reply(
+          `
+    Your current AD Tag: <pre>${output}</pre>
+          `,
+          {
+            reply_markup: backToMainMenu,
+            parse_mode: "HTML",
+          },
+        );
+      }
     });
   })
-  .text("New Tag", (ctx) => {
-    ctx.editMessageText(
+  .text("New Tag", async (ctx) => {
+    const res = await ctx.editMessageText(
       "Send me your AD Tag that you received from @mtproxybot",
       {
         reply_markup: backToMainMenu,
@@ -104,7 +116,7 @@ Your current AD Tag: <pre>${output}</pre>
     );
 
     ctx.session.waitForAdTag = true;
-    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id];
+    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id, res.message_id];
   });
 
 mainMenu.register(backToMainMenu);
