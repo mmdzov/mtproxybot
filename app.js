@@ -1,8 +1,8 @@
-const { Bot } = require("grammy");
+const { Bot, session, MemorySessionStorage } = require("grammy");
 const dotenv = require("dotenv");
 const { run } = require("@grammyjs/runner");
 const { SocksProxyAgent } = require("socks-proxy-agent");
-const { exec } = require("child_process");
+const { exec, execSync } = require("child_process");
 const { Menu } = require("@grammyjs/menu");
 const { join } = require("path");
 const { cwd } = require("process");
@@ -35,41 +35,121 @@ bot = new Bot(process.env.TOKEN);
 
 //   console.log(me);
 
+const initial = () => ({
+  waitForAdTag: false,
+  waitForAdTagMsgIds: [],
+});
+
+bot.use(
+  session({
+    initial,
+    storage: new MemorySessionStorage(),
+  }),
+);
+
 const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
 });
 
 bot.use(backToMainMenu);
 
-const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
-  exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
-    console.log(err, stdout, stderr);
-    if (err) {
-      console.log(err);
-      return;
-    }
+const mainMenu = new Menu("main-menu")
+  .text("View all links", (ctx) => {
+    exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
+      console.log(err, stdout, stderr);
+      if (err) {
+        console.log(err);
+        return;
+      }
 
-    let output = stdout.split("\n");
+      let output = stdout.split("\n");
 
-    output.shift();
+      output.shift();
 
-    output = output.join("\n");
+      output = output.join("\n");
 
-    await ctx.editMessageText(output, {
-      reply_markup: backToMainMenu,
+      await ctx.editMessageText(output, {
+        reply_markup: backToMainMenu,
+      });
     });
+  })
+  .row()
+  .text("Get Tag", (ctx) => {
+    exec(`${scripts.run} 3`, async (err, stdout, stderr) => {
+      console.log(err, stdout, stderr);
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      let output = stdout.split(".")[0].split(" ").slice(-1)[0];
+
+      ctx.editMessageText(
+        `
+Your current AD Tag: <pre>${output}</pre>
+      `,
+        {
+          reply_markup: backToMainMenu,
+        },
+      );
+    });
+  })
+  .text("New Tag", (ctx) => {
+    ctx.editMessageText(
+      "Send me your AD Tag that you received from @mtproxybot",
+      {
+        reply_markup: backToMainMenu,
+      },
+    );
+
+    ctx.session.waitForAdTag = true;
+    waitForAdTagMsgIds = [ctx.message.message_id];
   });
-});
 
 mainMenu.register(backToMainMenu);
 
 bot.use(mainMenu);
 
-bot.on("message", (ctx, next) => {
-  ctx.reply("bot is alive");
+bot
+  .filter((ctx) => ctx.session.waitForAdTag)
+  .on("message", async (ctx) => {
+    const msg = ctx.message?.text;
 
-  return next();
-});
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForAdTagMsgIds]);
+    } catch (e) {}
+
+    if (!msg) {
+      const res = await ctx.reply("Error: Wrong AD Tag text", {
+        reply_markup: backToMainMenu,
+      });
+
+      res.message_id;
+
+      ctx.session.waitForAdTagMsgIds.push(res.message_id);
+    }
+
+    const result = execSync(`${scripts.run} 3`, { input: msg }).toString();
+
+    // let isDone = result.includes("Done");
+
+    // if (isDone) {
+    await ctx.reply(
+      `New AD Tag has been successfully added. your new AD Tag: <pre>${msg}</pre>`,
+    );
+
+    ctx.reply("Select as option:", {
+      reply_markup: mainMenu,
+    });
+
+    ctx.session.waitForAdTag = false;
+    ctx.session.waitForAdTagMsgIds = [];
+
+    // return;
+    // }
+  });
 
 bot.command("start", (ctx) => {
   ctx.reply("select an option:", {
