@@ -29,6 +29,8 @@ if (process.env.NODE_ENV?.includes("development")) {
   });
 } else bot = new Bot(process.env.TOKEN);
 
+
+
 const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
   exec(`${scripts.run} 1`, (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
@@ -54,6 +56,11 @@ bot.command("start", (ctx) => {
     reply_markup: mainMenu,
   });
 });
+
+
+bot.catch((err) => {
+    console.log(err)
+})
 
 const runner = run(bot);
 
