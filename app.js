@@ -90,6 +90,7 @@ Your current AD Tag: <pre>${output}</pre>
       `,
         {
           reply_markup: backToMainMenu,
+          parse_mode: "HTML",
         },
       );
     });
@@ -138,6 +139,9 @@ bot
     // if (isDone) {
     await ctx.reply(
       `New AD Tag has been successfully added. your new AD Tag: <pre>${msg}</pre>`,
+      {
+        parse_mode: "HTML",
+      },
     );
 
     ctx.reply("Select as option:", {
