@@ -74,35 +74,27 @@ const mainMenu = new Menu("main-menu")
     });
   })
   .row()
-  .text("Get Tag", (ctx) => {
-    exec(`${scripts.run} 3`, async (err, stdout, stderr) => {
-      console.log(err, stdout, stderr);
-      if (err) {
-        console.error(err);
-        return;
-      }
+  .text("Get Tag", async (ctx) => {
+    const stdout = execSync(`${scripts.run} 3`).toString();
 
-      let output = stdout.split(".")[0].split(" ").slice(-1)[0];
+    let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-      ctx.reply(stdout);
+    if (!output?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "your AD TAG is empty",
+      });
+      return;
+    }
 
-      //   if (!output?.trim()) {
-      //     await ctx.answerCallbackQuery({
-      //       text: "your AD TAG is empty",
-      //     });
-      //     return;
-      //   }
-
-      //   await ctx.editMessageText(
-      //     `
-      // Your current AD Tag: <pre>${output}</pre>
-      //       `,
-      //     {
-      //       reply_markup: backToMainMenu,
-      //       parse_mode: "HTML",
-      //     },
-      //   );
-    });
+    await ctx.editMessageText(
+      `
+      Your current AD Tag: <pre>${output}</pre>
+            `,
+      {
+        reply_markup: backToMainMenu,
+        parse_mode: "HTML",
+      },
+    );
   })
   .text("New Tag", async (ctx) => {
     const res = await ctx.editMessageText(
@@ -123,6 +115,7 @@ bot.use(mainMenu);
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
   .on("message", async (ctx) => {
+    console.log("from message event")
     const msg = ctx.message?.text;
 
     const msgId = ctx.message.message_id;
@@ -135,8 +128,6 @@ bot
       const res = await ctx.reply("Error: Wrong AD Tag text", {
         reply_markup: backToMainMenu,
       });
-
-      res.message_id;
 
       ctx.session.waitForAdTagMsgIds.push(res.message_id);
     }
