@@ -78,28 +78,30 @@ const mainMenu = new Menu("main-menu")
     exec(`${scripts.run} 3`, async (err, stdout, stderr) => {
       console.log(err, stdout, stderr);
       if (err) {
-        console.log(err);
+        console.error(err);
         return;
       }
 
       let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-      if (!output?.trim()) {
-        await ctx.answerCallbackQuery({
-          text: "your AD TAG is empty",
-        });
-        return;
-      }
+      ctx.reply(output);
 
-      await ctx.editMessageText(
-        `
-    Your current AD Tag: <pre>${output}</pre>
-          `,
-        {
-          reply_markup: backToMainMenu,
-          parse_mode: "HTML",
-        },
-      );
+      //   if (!output?.trim()) {
+      //     await ctx.answerCallbackQuery({
+      //       text: "your AD TAG is empty",
+      //     });
+      //     return;
+      //   }
+
+      //   await ctx.editMessageText(
+      //     `
+      // Your current AD Tag: <pre>${output}</pre>
+      //       `,
+      //     {
+      //       reply_markup: backToMainMenu,
+      //       parse_mode: "HTML",
+      //     },
+      //   );
     });
   })
   .text("New Tag", async (ctx) => {
