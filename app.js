@@ -68,3 +68,8 @@ bot.catch((err) => {
 const runner = run(bot);
 
 if (runner.isRunning()) console.log("Bot has started :)");
+
+(async () => {
+  const me = await bot.api.getMe();
+  console.log(me);
+})();
