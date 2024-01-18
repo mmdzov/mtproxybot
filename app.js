@@ -36,12 +36,14 @@ bot = new Bot(process.env.TOKEN);
 //   console.log(me);
 
 const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
-  exec(`${scripts.run} 1`, (err, stdout, stderr) => {
+  exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
     if (err) {
       console.log(err);
       return;
     }
+
+    await ctx.api.sendMessage(process.env.USER_ID, stdout);
 
     console.log(stdout);
   });
