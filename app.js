@@ -17,6 +17,7 @@ let scripts = {
 };
 
 if (process.env.NODE_ENV?.includes("development")) {
+  console.log("development mode selected");
   const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
 
   bot = new Bot(process.env.TOKEN, {
@@ -36,13 +37,17 @@ const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
       return;
     }
 
-    
-    console.log(stdout)
-
+    console.log(stdout);
   });
 });
 
 bot.use(mainMenu);
+
+bot.on("message", (ctx, next) => {
+  ctx.reply("bot is alive");
+
+  return next();
+});
 
 bot.command("start", (ctx) => {
   ctx.reply("select an option:", {
