@@ -16,7 +16,7 @@ let scripts = {
   run: "curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh",
 };
 
-if (process.env.NODE_ENV.includes("development")) {
+if (process.env.NODE_ENV?.includes("development")) {
   const socksAgent = new SocksProxyAgent("socks://127.0.0.1:10808");
 
   bot = new Bot(process.env.TOKEN, {
