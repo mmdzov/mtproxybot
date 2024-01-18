@@ -84,7 +84,7 @@ const mainMenu = new Menu("main-menu")
 
       let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-      ctx.reply(output);
+      ctx.reply(stdout);
 
       //   if (!output?.trim()) {
       //     await ctx.answerCallbackQuery({
