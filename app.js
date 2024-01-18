@@ -35,6 +35,8 @@ bot = new Bot(process.env.TOKEN);
 
 //   console.log(me);
 
+const backToMainMenu = new Menu("back-to-main").back("<< Back");
+
 const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
   exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
@@ -43,13 +45,20 @@ const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
       return;
     }
 
-    await ctx.api.sendMessage(process.env.USER_ID, stdout);
+    let output = stdout.split("\n");
 
-    console.log(stdout);
+    output.shift();
+
+    output.join("\n");
+
+    await ctx.reply(output, {
+      reply_markup: backToMainMenu,
+    });
   });
 });
 
 bot.use(mainMenu);
+bot.use(backToMainMenu);
 
 bot.on("message", (ctx, next) => {
   ctx.reply("bot is alive");
