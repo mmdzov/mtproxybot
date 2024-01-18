@@ -37,6 +37,8 @@ bot = new Bot(process.env.TOKEN);
 
 const backToMainMenu = new Menu("back-to-main").back("<< Back");
 
+bot.use(backToMainMenu);
+
 const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
   exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
@@ -58,7 +60,6 @@ const mainMenu = new Menu("main-menu").text("View all links", (ctx) => {
 });
 
 bot.use(mainMenu);
-bot.use(backToMainMenu);
 
 bot.on("message", (ctx, next) => {
   ctx.reply("bot is alive");
