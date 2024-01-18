@@ -84,27 +84,22 @@ const mainMenu = new Menu("main-menu")
 
       let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-      try {
-        await ctx.editMessageText(
-          `
-    Your current AD Tag: <pre>${output}</pre>
-          `,
-          {
-            reply_markup: backToMainMenu,
-            parse_mode: "HTML",
-          },
-        );
-      } catch (e) {
-        await ctx.reply(
-          `
-    Your current AD Tag: <pre>${output}</pre>
-          `,
-          {
-            reply_markup: backToMainMenu,
-            parse_mode: "HTML",
-          },
-        );
+      if (!output?.trim()) {
+        await ctx.answerCallbackQuery({
+          text: "your AD TAG is empty",
+        });
+        return;
       }
+
+      await ctx.editMessageText(
+        `
+    Your current AD Tag: <pre>${output}</pre>
+          `,
+        {
+          reply_markup: backToMainMenu,
+          parse_mode: "HTML",
+        },
+      );
     });
   })
   .text("New Tag", async (ctx) => {
