@@ -117,8 +117,8 @@ const mainMenu = new Menu("main-menu")
       },
     );
   })
-  .text("New Tag", (ctx) => {
-    ctx.editMessageText(
+  .text("New Tag", async (ctx) => {
+    const res = await ctx.editMessageText(
       "Send me your AD Tag that you received from @mtproxybot",
       {
         reply_markup: backToMainMenu,
@@ -126,7 +126,10 @@ const mainMenu = new Menu("main-menu")
     );
 
     ctx.session.waitForAdTag = true;
-    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id];
+    waitForAdTagMsgIds = [
+      ctx.callbackQuery.message.message_id,
+      res.callbackQuery.message.message_id,
+    ];
   })
   .row()
   .text("New secret", (ctx) => {
@@ -141,10 +144,10 @@ Warning! Do not use special characters like " , ' , $ or... for username
       },
     );
 
-
-    
     ctx.session.waitForNewSecretUsername = true;
-    ctx.session.waitForNewSecretUsernameMsgIds = [ctx.callbackQuery.message.message_id];
+    ctx.session.waitForNewSecretUsernameMsgIds = [
+      ctx.callbackQuery.message.message_id,
+    ];
   });
 
 const addSecretMenu = new Menu("add-secret")
