@@ -152,7 +152,7 @@ const limitConnectionMenu = new Menu("limit-connection")
 
     if (!proxies || !proxies?.trim()) {
       await dctx.answerCallbackQuery({
-        text: "There is no secret yet",
+        text: "There is no proxy yet",
       });
       return;
     }
@@ -170,16 +170,18 @@ const limitConnectionMenu = new Menu("limit-connection")
 
       range
         .text(user, async (ctx) => {
-          console.log(i, i + 1);
+          //   console.log(i, i + 1);
+
+          const proxyIndex = i + 1;
 
           const result = execSync(`${scripts.run}`, {
-            input: `6\n${i + 1}\n`,
+            input: `6\n${proxyIndex}\n`,
             shell: "/bin/bash",
           }).toString();
 
           try {
             await ctx.answerCallbackQuery({
-              text: "successfully revoked",
+              text: "successfully changed",
             });
           } catch (e) {}
 
