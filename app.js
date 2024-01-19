@@ -77,7 +77,11 @@ bot.use(backToMainMenu);
 
 const revokeSecretMenu = new Menu("revoke-secret")
   .dynamic(async (dctx) => {
-    const proxies = execSync(`${scripts.run} 1`).toString();
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
 
     if (!proxies || !proxies?.trim()) {
       await dctx.answerCallbackQuery({
@@ -127,23 +131,28 @@ const revokeSecretMenu = new Menu("revoke-secret")
   });
 
 const mainMenu = new Menu("main-menu")
-  .text("View all links", (ctx) => {
-    exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
-      console.log(err, stdout, stderr);
-      if (err) {
-        console.log(err);
-        return;
-      }
+  .text("View all links", async (ctx) => {
+    let proxies = "";
 
-      let output = stdout.split("\n");
+    try {
+      proxies = execSync(`${scripts.run} 1`);
+    } catch (e) {}
 
-      output.shift();
-
-      output = output.join("\n");
-
-      await ctx.editMessageText(output, {
-        reply_markup: backToMainMenu,
+    if (!proxies || !proxies?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "There is no proxy yet",
       });
+      return;
+    }
+
+    let output = proxies.split("\n");
+
+    output.shift();
+
+    output = output.join("\n");
+
+    await ctx.editMessageText(output, {
+      reply_markup: backToMainMenu,
     });
   })
   .row()
