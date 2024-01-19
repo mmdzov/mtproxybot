@@ -101,6 +101,7 @@ const revokeSecretMenu = new Menu("revoke-secret")
         .text(user, async (ctx) => {
           const result = execSync(`${scripts.run}`, {
             input: `5\n${i + 1}\n`,
+            shell: "/bin/bash",
           }).toString();
 
           try {
