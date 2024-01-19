@@ -184,9 +184,12 @@ const mainMenu = new Menu("main-menu")
   })
   .row()
   .text("Revoke secret", (ctx) => {
-    ctx.editMessageText("select a user", {
-      reply_markup: revokeSecretMenu,
-    });
+    const users = execSync(`${scripts.run} 5`).toString();
+
+    console.log(users);
+    // ctx.editMessageText("select a user", {
+    //   reply_markup: revokeSecretMenu,
+    // });
   })
   .text("New secret", (ctx) => {
     ctx.editMessageText(
