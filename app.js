@@ -334,7 +334,7 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
     }
     const user = ctx.session.usernameSecret;
 
-    console.loh(user, msg);
+    console.log(user, msg);
 
     const result = execSync(`${scripts.run} 4`, {
       input: `${user}\n1\n${msg?.trim()}\n`,
