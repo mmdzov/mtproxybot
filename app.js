@@ -284,7 +284,7 @@ Please Enter your secret
 
 Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
 
-You can create your own secret from http://seriyps.ru/mtpgen.html.
+You can create your own secret from http://seriyps.ru/mtpgen.html
 
 You can also generate your secret randomly through the Generate button
     `,
@@ -335,7 +335,7 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
     const user = ctx.session.usernameSecret;
 
     const result = execSync(`${scripts.run} 4`, {
-      input: `${user}\n1\n${secret}\n`,
+      input: `${user}\n1\n${msg}\n`,
     }).toString();
 
     try {
