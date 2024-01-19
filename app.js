@@ -184,7 +184,7 @@ const mainMenu = new Menu("main-menu")
   })
   .row()
   .text("Revoke secret", (ctx) => {
-    const users = execSync(`${scripts.run} 5`).toString();
+    const users = execSync(`${scripts.run} 5`, { input: "2" }).toString();
 
     console.log(users);
     // ctx.editMessageText("select a user", {
