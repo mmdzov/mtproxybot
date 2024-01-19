@@ -184,7 +184,7 @@ Secret: ${secret}
 </pre>
     `,
           {
-            reply_markup: "HTML",
+            parse_mode: "HTML",
           },
         );
       } catch (e) {}
@@ -350,12 +350,10 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
   </pre>
       `,
         {
-          reply_markup: "HTML",
+          parse_mode: "HTML",
         },
       );
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
 
     ctx.session.waitForNewSecret = false;
     ctx.session.waitForNewSecretMsgIds = [];
