@@ -319,6 +319,7 @@ Warning! Do not use special characters like " , ' , $ or... for username
       ctx.callbackQuery.message.message_id,
     ];
   })
+  .row()
   .text("Limit connection", async (ctx) => {
     let proxies = "";
 
