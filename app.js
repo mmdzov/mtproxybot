@@ -148,6 +148,9 @@ Warning! Do not use special characters like " , ' , $ or... for username
   });
 
 const addSecretMenu = new Menu("add-secret")
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("Select an option:");
+  })
   .text(
     "Generate",
     (ctx, next) => ctx.session.waitForNewSecret && next(),
@@ -157,7 +160,7 @@ const addSecretMenu = new Menu("add-secret")
       const user = ctx.session.usernameSecret;
 
       const result = execSync(`${scripts.run} 4`, {
-        input: `${user}\n${secret}`,
+        input: `${user}\n${secret}\n`,
       }).toString();
 
       const msgId = ctx.callbackQuery.message.message_id;
@@ -188,10 +191,7 @@ Secret: ${secret}
 
       console.log("from generate secret:", result);
     },
-  )
-  .back("<< Back", (ctx) => {
-    ctx.editMessageText("Select an option:");
-  });
+  );
 
 bot.use(mainMenu);
 bot.use(addSecretMenu);
