@@ -301,6 +301,22 @@ mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
 
+bot.command("reset", (ctx) => {
+  waitForAdTag = false;
+  waitForAdTagMsgIds = [];
+
+  waitForNewSecretUsername = false;
+  usernameSecret = "";
+  waitForNewSecretUsernameMsgIds = [];
+
+  waitForNewSecret = false;
+  waitForNewSecretMsgIds = [];
+
+  ctx.reply("select an option:", {
+    reply_markup: mainMenu,
+  });
+});
+
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
   .on("message", async (ctx) => {
@@ -459,22 +475,6 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
   });
 
 bot.command("start", (ctx) => {
-  ctx.reply("select an option:", {
-    reply_markup: mainMenu,
-  });
-});
-
-bot.command("reset", (ctx) => {
-  waitForAdTag = false;
-  waitForAdTagMsgIds = [];
-
-  waitForNewSecretUsername = false;
-  usernameSecret = "";
-  waitForNewSecretUsernameMsgIds = [];
-
-  waitForNewSecret = false;
-  waitForNewSecretMsgIds = [];
-
   ctx.reply("select an option:", {
     reply_markup: mainMenu,
   });
