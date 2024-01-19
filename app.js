@@ -334,8 +334,10 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
     }
     const user = ctx.session.usernameSecret;
 
+    console.loh(user, msg);
+
     const result = execSync(`${scripts.run} 4`, {
-      input: `${user}\n1\n${msg}\n`,
+      input: `${user}\n1\n${msg?.trim()}\n`,
     }).toString();
 
     try {
@@ -344,14 +346,16 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
   Secret added successfully
   <pre>
   Username: ${user}
-  Secret: ${msg}
+  Secret: ${msg?.trim()}
   </pre>
       `,
         {
           reply_markup: "HTML",
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
 
     ctx.session.waitForNewSecret = false;
     ctx.session.waitForNewSecretMsgIds = [];
