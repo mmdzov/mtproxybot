@@ -141,8 +141,10 @@ Warning! Do not use special characters like " , ' , $ or... for username
       },
     );
 
-    waitForNewSecretUsername = true;
-    waitForNewSecretUsernameMsgIds = [ctx.callbackQuery.message.message_id];
+
+    
+    ctx.session.waitForNewSecretUsername = true;
+    ctx.session.waitForNewSecretUsernameMsgIds = [ctx.callbackQuery.message.message_id];
   });
 
 const addSecretMenu = new Menu("add-secret")
