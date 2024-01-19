@@ -174,7 +174,7 @@ const limitConnectionMenu = new Menu("limit-connection")
 
           const proxyIndex = i + 1;
 
-          const result = execSync(`${scripts.run}`, {
+          const result = execSync(`echo ${scripts.run}`, {
             input: `6\n${proxyIndex}\n`,
             shell: "/bin/bash",
           }).toString();
