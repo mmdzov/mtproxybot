@@ -393,15 +393,17 @@ Secret: ${secret}
     },
   );
 
-bot.use(limitConnectionMenu);
 bot.use(revokeSecretMenu);
 bot.use(mainMenu);
 bot.use(addSecretMenu);
+bot.use(limitConnectionMenu);
 
-limitConnectionMenu.register(backToLimitConnectionMenu);
+mainMenu.register(backToMainMenu);
 mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
+mainMenu.register(backToLimitConnectionMenu);
+limitConnectionMenu.register(backToLimitConnectionMenu);
 
 bot.command("reset", (ctx) => {
   ctx.session = {
