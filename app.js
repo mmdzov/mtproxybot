@@ -403,15 +403,21 @@ mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
 
 bot.command("reset", (ctx) => {
-  waitForAdTag = false;
-  waitForAdTagMsgIds = [];
+  ctx.session = {
+    waitForAdTag: false,
+    waitForAdTagMsgIds: [],
 
-  waitForNewSecretUsername = false;
-  usernameSecret = "";
-  waitForNewSecretUsernameMsgIds = [];
+    waitForNewSecretUsername: false,
+    usernameSecret: "",
+    waitForNewSecretUsernameMsgIds: [],
 
-  waitForNewSecret = false;
-  waitForNewSecretMsgIds = [];
+    waitForNewSecret: false,
+    waitForNewSecretMsgIds: [],
+
+    waitForLimitConnection: false,
+    limitConnectionId: -1,
+    waitForLimitConnectionMsgIds: [],
+  };
 
   ctx.reply("select an option:", {
     reply_markup: mainMenu,
