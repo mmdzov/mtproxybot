@@ -99,8 +99,10 @@ const revokeSecretMenu = new Menu("revoke-secret")
 
       range
         .text(user, async (ctx) => {
+          console.log(i, i + 1);
+
           const result = execSync(`${scripts.run}`, {
-            input: `5\n1\n`,
+            input: `5\n${i + 1}\n`,
             shell: "/bin/bash",
           }).toString();
 
