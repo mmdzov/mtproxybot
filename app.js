@@ -197,7 +197,7 @@ Please enter the max users that you want to connect to this user
           ctx.session.waitForLimitConnection = true;
           ctx.session.limitConnectionId = proxyIndex;
           ctx.session.limitConnectionUsername = user;
-          ctx.session.waitForLimitConnectionMsgId = [
+          ctx.session.waitForLimitConnectionMsgIds = [
             res.message_id,
             ctx.callbackQuery.message.message_id,
           ];
