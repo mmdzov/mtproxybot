@@ -77,7 +77,13 @@ bot.use(backToMainMenu);
 
 const revokeSecretMenu = new Menu("revoke-secret")
   .dynamic(async (dctx) => {
-    const users = execSync(`${scripts.run} 5`).toString();
+    let users = "";
+
+    try {
+      users = execSync(`${scripts.run} 5`).toString();
+    } catch (e) {
+      console.log(e?.stderr?.toString(), e);
+    }
 
     if (!users || !users?.trim()) {
       await dctx.answerCallbackQuery({
