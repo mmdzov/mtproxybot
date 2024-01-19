@@ -403,7 +403,7 @@ bot.use(limitConnectionMenu);
 mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
-// mainMenu.register(backToLimitConnectionMenu);
+mainMenu.register(limitConnectionMenu);
 limitConnectionMenu.register(backToLimitConnectionMenu);
 
 bot.command("reset", (ctx) => {
