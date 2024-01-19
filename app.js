@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const { run } = require("@grammyjs/runner");
 const { SocksProxyAgent } = require("socks-proxy-agent");
 const { exec, execSync } = require("child_process");
-const { Menu } = require("@grammyjs/menu");
+const { Menu, MenuRange } = require("@grammyjs/menu");
 const { join } = require("path");
 const { cwd } = require("process");
 const parse = require("shell-quote/parse");
@@ -74,6 +74,54 @@ const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
 });
 
 bot.use(backToMainMenu);
+
+const revokeSecretMenu = new Menu("revoke-secret")
+  .dynamic(async (dctx) => {
+    const users = execSync(`${scripts.run} 5`).toString();
+
+    if (!users || !users?.trim()) {
+      await dctx.answerCallbackQuery({
+        text: "There is no secret yet",
+      });
+      return;
+    }
+
+    const usersArr = users
+      .split("\n")
+      .filter((item) => item)
+      .map((item) => item?.trim()?.split(" ").slice(-1)[0]);
+
+    const range = new MenuRange();
+
+    for (let i in usersArr) {
+      const user = usersArr[i];
+
+      range
+        .text(user, async (ctx) => {
+          const result = execSync(`${scripts.run} 5`, {
+            input: `${i + 1}`,
+          }).toString();
+
+          try {
+            await ctx.answerCallbackQuery({
+              text: "successfully revoked",
+            });
+          } catch (e) {}
+
+          ctx.editMessageText("Select an option:", {
+            reply_markup: mainMenu,
+          });
+        })
+        .row();
+    }
+
+    return range;
+  })
+  .row()
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("select an option:");
+  });
+
 const mainMenu = new Menu("main-menu")
   .text("View all links", (ctx) => {
     exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
@@ -100,7 +148,7 @@ const mainMenu = new Menu("main-menu")
 
     let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-    if (!output || !output?.trim()) {
+    if (!output || !output?.trim() || output.includes("empty")) {
       await ctx.answerCallbackQuery({
         text: "your AD TAG is empty",
       });
@@ -129,6 +177,11 @@ const mainMenu = new Menu("main-menu")
     waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id, res.message_id];
   })
   .row()
+  .text("Revoke secret", (ctx) => {
+    ctx.editMessageText("select a user", {
+      reply_markup: revokeSecretMenu,
+    });
+  })
   .text("New secret", (ctx) => {
     ctx.editMessageText(
       `
@@ -201,11 +254,13 @@ Secret: ${secret}
     },
   );
 
+bot.use(revokeSecretMenu);
 bot.use(mainMenu);
 bot.use(addSecretMenu);
 
 mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
+mainMenu.register(revokeSecretMenu);
 
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
