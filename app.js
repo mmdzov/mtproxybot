@@ -299,6 +299,22 @@ bot.command("start", (ctx) => {
   });
 });
 
+bot.command("reset", (ctx) => {
+  waitForAdTag = false;
+  waitForAdTagMsgIds = [];
+
+  waitForNewSecretUsername = false;
+  usernameSecret = "";
+  waitForNewSecretUsernameMsgIds = [];
+
+  waitForNewSecret = false;
+  waitForNewSecretMsgIds = [];
+
+  ctx.reply("select an option:", {
+    reply_markup: mainMenu,
+  });
+});
+
 bot.catch((err) => {
   console.log(err);
 });
