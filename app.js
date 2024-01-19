@@ -177,7 +177,7 @@ const limitConnectionMenu = new Menu("limit-connection")
           console.log("proxyIndex:", proxyIndex, typeof i);
 
           const result = execSync(`${scripts.run}`, {
-            input: `6\n1\n`,
+            input: `\n6\n1\n`,
           }).toString();
 
           try {
