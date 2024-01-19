@@ -47,6 +47,7 @@ const initial = () => ({
   waitForNewSecretMsgIds: [],
 
   waitForLimitConnection: false,
+  limitConnectionUsername: "",
   limitConnectionId: -1,
   waitForLimitConnectionMsgIds: [],
 });
@@ -174,20 +175,18 @@ const limitConnectionMenu = new Menu("limit-connection")
 
           const proxyIndex = +i + 1;
 
-          const result = execSync(`${scripts.run}`, {
-            input: `6\n${proxyIndex}\n${ctx.session.limitConnectionId}\n`,
-          }).toString();
+          //   const result = execSync(`${scripts.run}`, {
+          //     input: `6\n${proxyIndex}\n`,
+          //   }).toString();
 
-          try {
-            await ctx.answerCallbackQuery({
-              text: "successfully changed",
-            });
-          } catch (e) {}
+          //   try {
+          //     await ctx.answerCallbackQuery({
+          //       text: "successfully changed",
+          //     });
+          //   } catch (e) {}
 
           const res = await ctx.editMessageText(
             `
-${result}
-
 Please enter the max users that you want to connect to this user
           `,
             {
@@ -196,7 +195,8 @@ Please enter the max users that you want to connect to this user
           );
 
           ctx.session.waitForLimitConnection = true;
-          ctx.session.limitConnectionId = i + 1;
+          ctx.session.limitConnectionId = proxyIndex;
+          ctx.session.limitConnectionUsername = user;
           ctx.session.waitForLimitConnectionMsgId = [
             res.message_id,
             ctx.callbackQuery.message.message_id,
@@ -419,6 +419,7 @@ bot.command("reset", (ctx) => {
 
     waitForLimitConnection: false,
     limitConnectionId: -1,
+    limitConnectionUsername: "",
     waitForLimitConnectionMsgIds: [],
   };
 
@@ -461,7 +462,13 @@ bot
 
     // if (isDone) {
     await ctx.reply(
-      `New AD Tag has been successfully added. your new AD Tag: <pre>${msg}</pre>`,
+      `
+limit connection successfully changed: 
+<pre>
+User: ${ctx.session.limitConnectionUsername} 
+Max users: ${msg}
+
+</pre>`,
       {
         parse_mode: "HTML",
       },
@@ -473,6 +480,7 @@ bot
 
     ctx.session.waitForLimitConnection = false;
     ctx.session.limitConnectionId = -1;
+    ctx.session.limitConnectionUsername = "";
     ctx.session.waitForLimitConnectionMsgIds = [];
   });
 
