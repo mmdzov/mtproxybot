@@ -159,6 +159,8 @@ const addSecretMenu = new Menu("add-secret")
 
       const user = ctx.session.usernameSecret;
 
+      console.log(user, secret);
+
       const result = execSync(`${scripts.run} 4`, {
         input: `${user}\n${secret}\n`,
       }).toString();
