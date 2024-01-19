@@ -100,7 +100,7 @@ const mainMenu = new Menu("main-menu")
 
     let output = stdout.split(".")[0].split(" ").slice(-1)[0];
 
-    if (!output?.trim()) {
+    if (!output || !output?.trim()) {
       await ctx.answerCallbackQuery({
         text: "your AD TAG is empty",
       });
@@ -126,10 +126,7 @@ const mainMenu = new Menu("main-menu")
     );
 
     ctx.session.waitForAdTag = true;
-    waitForAdTagMsgIds = [
-      ctx.callbackQuery.message.message_id,
-      res.message_id,
-    ];
+    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id, res.message_id];
   })
   .row()
   .text("New secret", (ctx) => {
