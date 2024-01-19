@@ -118,7 +118,7 @@ const revokeSecretMenu = new Menu("revoke-secret")
           console.log(i, i + 1);
 
           const result = execSync(`${scripts.run}`, {
-            input: `5\n${i + 1}\n`,
+            input: `5\n${+i + 1}\n`,
             shell: "/bin/bash",
           }).toString();
 
@@ -176,7 +176,7 @@ const limitConnectionMenu = new Menu("limit-connection")
 
             console.log("proxyIndex:",proxyIndex,typeof i)
 
-          const result = execSync(`echo ${scripts.run}`, {
+          const result = execSync(`${scripts.run}`, {
             input: `6\n${proxyIndex}\n`,
             shell: "/bin/bash",
           }).toString();
