@@ -38,6 +38,13 @@ bot = new Bot(process.env.TOKEN);
 const initial = () => ({
   waitForAdTag: false,
   waitForAdTagMsgIds: [],
+
+  waitForNewSecretUsername: false,
+  usernameSecret: "",
+  waitForNewSecretUsernameMsgIds: [],
+
+  waitForNewSecret: false,
+  waitForNewSecretMsgIds: [],
 });
 
 bot.use(
@@ -47,11 +54,73 @@ bot.use(
   }),
 );
 
+const randomSecret = () => {
+  const keys = "1234567890abcdef";
+
+  const chunks = keys.split("");
+
+  const secretNumber = 32;
+
+  const secret = new Array(secretNumber)
+    .fill(0)
+    .map(() => chunks[Math.floor(Math.random() * chunks.length)])
+    .join("");
+
+  return secret;
+};
+
 const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
 });
 
+const addSecretMenu = new Menu("back-to-main")
+  .text(
+    "Generate",
+    (ctx, next) => ctx.session.waitForNewSecret && next(),
+    async (ctx) => {
+      const secret = randomSecret();
+
+      const user = ctx.session.usernameSecret;
+
+      const result = execSync(`${scripts.run} 4`, {
+        input: `${user}\n${secret}`,
+      }).toString();
+
+      const msgId = ctx.callbackQuery.message.message_id;
+
+      try {
+        await ctx.deleteMessages([
+          msgId,
+          ...ctx.session.waitForNewSecretMsgIds,
+        ]);
+      } catch (e) {}
+
+      try {
+        await ctx.reply(`
+secret added successfully
+<pre>
+Username: ${user}
+Secret: ${secret}
+</pre>
+    `);
+      } catch (e) {}
+
+      ctx.session.waitForNewSecret = false;
+      ctx.session.waitForNewSecretMsgIds = [];
+
+      ctx.reply("Select an option:", {
+        reply_markup: mainMenu,
+      });
+
+      console.log("from generate secret:", result);
+    },
+  )
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("Select an option:");
+  });
+
 bot.use(backToMainMenu);
+bot.use(addSecretMenu);
 
 const mainMenu = new Menu("main-menu")
   .text("View all links", (ctx) => {
@@ -96,8 +165,8 @@ const mainMenu = new Menu("main-menu")
       },
     );
   })
-  .text("New Tag", async (ctx) => {
-    const res = await ctx.editMessageText(
+  .text("New Tag", (ctx) => {
+    ctx.editMessageText(
       "Send me your AD Tag that you received from @mtproxybot",
       {
         reply_markup: backToMainMenu,
@@ -105,17 +174,34 @@ const mainMenu = new Menu("main-menu")
     );
 
     ctx.session.waitForAdTag = true;
-    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id, res.message_id];
+    waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id];
+  })
+  .row()
+  .text("New secret", (ctx) => {
+    ctx.editMessageText(
+      `
+Please enter the username
+
+Warning! Do not use special characters like " , ' , $ or... for username
+`,
+      {
+        reply_markup: backToMainMenu,
+      },
+    );
+
+    waitForNewSecretUsername = true;
+    waitForNewSecretUsernameMsgIds = [ctx.callbackQuery.message.message_id];
   });
 
 mainMenu.register(backToMainMenu);
+mainMenu.register(addSecretMenu);
 
 bot.use(mainMenu);
 
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
   .on("message", async (ctx) => {
-    console.log("from message event")
+    console.log("from message event");
     const msg = ctx.message?.text;
 
     const msgId = ctx.message.message_id;
@@ -130,6 +216,8 @@ bot
       });
 
       ctx.session.waitForAdTagMsgIds.push(res.message_id);
+
+      return;
     }
 
     const result = execSync(`${scripts.run} 3`, { input: msg }).toString();
@@ -153,6 +241,57 @@ bot
 
     // return;
     // }
+  });
+
+bot
+  .filter((ctx) => ctx.session.waitForNewSecretUsername)
+  .on("message", async (ctx) => {
+    const msg = ctx.message?.text;
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([
+        msgId,
+        ...ctx.session.waitForNewSecretUsernameMsgIds,
+      ]);
+    } catch (e) {}
+
+    if (!msg) {
+      const res = await ctx.reply("Error: Wrong username text", {
+        reply_markup: backToMainMenu,
+      });
+
+      ctx.session.waitForNewSecretUsernameMsgIds.push(res.message_id);
+
+      return;
+    }
+
+    ctx.session.usernameSecret = msg;
+
+    const res = await ctx.reply(
+      `
+Please Enter your secret 
+Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
+
+You can create your own secret from http://seriyps.ru/mtpgen.html.
+
+You can also generate your secret randomly through the Generate button
+    `,
+      {
+        reply_markup: addSecretMenu,
+      },
+    );
+
+    ctx.session.waitForNewSecretUsername = false;
+    ctx.session.waitForNewSecretUsernameMsgIds = [];
+
+    ctx.session.waitForNewSecret = true;
+    ctx.session.waitForNewSecretMsgIds = [res.message_id];
+
+    // const result = execSync(`${scripts.run} 4`, { input: msg }).toString();
+
+    // console.log(result);
   });
 
 bot.command("start", (ctx) => {
