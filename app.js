@@ -128,7 +128,7 @@ const mainMenu = new Menu("main-menu")
     ctx.session.waitForAdTag = true;
     waitForAdTagMsgIds = [
       ctx.callbackQuery.message.message_id,
-      res.callbackQuery.message.message_id,
+      res.message_id,
     ];
   })
   .row()
