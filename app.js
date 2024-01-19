@@ -45,6 +45,10 @@ const initial = () => ({
 
   waitForNewSecret: false,
   waitForNewSecretMsgIds: [],
+
+  waitForLimitConnection: false,
+  limitConnectionId: -1,
+  waitForLimitConnectionMsgIds: [],
 });
 
 bot.use(
@@ -69,11 +73,19 @@ const randomSecret = () => {
   return secret;
 };
 
+const backToLimitConnectionMenu = new Menu("back-to-limit-connection").back(
+  "<< Back",
+  (ctx) => {
+    ctx.editMessageText("Select a user:");
+  },
+);
+
 const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
 });
 
 bot.use(backToMainMenu);
+bot.use(backToLimitConnectionMenu);
 
 const revokeSecretMenu = new Menu("revoke-secret")
   .dynamic(async (dctx) => {
@@ -130,6 +142,75 @@ const revokeSecretMenu = new Menu("revoke-secret")
     ctx.editMessageText("select an option:");
   });
 
+const limitConnectionMenu = new Menu("limit-connection")
+  .dynamic(async (dctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await dctx.answerCallbackQuery({
+        text: "There is no secret yet",
+      });
+      return;
+    }
+
+    const users = proxies
+      .split("\n")
+      .filter((item) => item)
+      .slice(1)
+      .map((item) => item.split(" ")[0].split(":").join(""));
+
+    const range = new MenuRange();
+
+    for (let i in users) {
+      const user = users[i];
+
+      range
+        .text(user, async (ctx) => {
+          console.log(i, i + 1);
+
+          const result = execSync(`${scripts.run}`, {
+            input: `6\n${i + 1}\n`,
+            shell: "/bin/bash",
+          }).toString();
+
+          try {
+            await ctx.answerCallbackQuery({
+              text: "successfully revoked",
+            });
+          } catch (e) {}
+
+          const res = await ctx.editMessageText(
+            `
+${result}
+
+Please enter the max users that you want to connect to this user
+          `,
+            {
+              reply_markup: backToLimitConnectionMenu,
+            },
+          );
+
+          ctx.session.waitForLimitConnection = true;
+          ctx.session.limitConnectionId = i + 1;
+          ctx.session.waitForLimitConnectionMsgId = [
+            res.message_id,
+            ctx.callbackQuery.message.message_id,
+          ];
+        })
+        .row();
+    }
+
+    return range;
+  })
+  .row()
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("select an option:");
+  });
+
 const mainMenu = new Menu("main-menu")
   .text("View all links", async (ctx) => {
     let proxies = "";
@@ -163,7 +244,7 @@ const mainMenu = new Menu("main-menu")
 
     if (!output || !output?.trim() || output.includes("empty")) {
       await ctx.answerCallbackQuery({
-        text: "your AD TAG is empty",
+        text: "There is no AD tag yet",
       });
       return;
     }
@@ -237,6 +318,24 @@ Warning! Do not use special characters like " , ' , $ or... for username
     ctx.session.waitForNewSecretUsernameMsgIds = [
       ctx.callbackQuery.message.message_id,
     ];
+  })
+  .text("Limit connection", async (ctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "There is no proxy yet",
+      });
+      return;
+    }
+
+    ctx.editMessageText("Select a user:", {
+      reply_markup: limitConnectionMenu,
+    });
   });
 
 const addSecretMenu = new Menu("add-secret")
@@ -293,10 +392,12 @@ Secret: ${secret}
     },
   );
 
+bot.use(limitConnectionMenu);
 bot.use(revokeSecretMenu);
 bot.use(mainMenu);
 bot.use(addSecretMenu);
 
+limitConnectionMenu.register(backToLimitConnectionMenu);
 mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
@@ -316,6 +417,55 @@ bot.command("reset", (ctx) => {
     reply_markup: mainMenu,
   });
 });
+
+bot
+  .filter((ctx) => ctx.session.waitForLimitConnection)
+  .on("message", async (ctx) => {
+    const msg = ctx.message?.text;
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([
+        msgId,
+        ...ctx.session.waitForLimitConnectionMsgIds,
+      ]);
+    } catch (e) {}
+
+    const pattern = /^[0-9]{0,}$/g;
+
+    if (!msg || !pattern.test(msg)) {
+      const res = await ctx.reply("Error: Wrong AD Tag text", {
+        reply_markup: backToLimitConnectionMenu,
+      });
+
+      ctx.session.waitForLimitConnectionMsgIds.push(res.message_id);
+
+      return;
+    }
+
+    const result = execSync(`${scripts.run} 6`, {
+      input: `${ctx.session.limitConnectionId}\n${msg.trim()}\n`,
+    }).toString();
+
+    // let isDone = result.includes("Done");
+
+    // if (isDone) {
+    await ctx.reply(
+      `New AD Tag has been successfully added. your new AD Tag: <pre>${msg}</pre>`,
+      {
+        parse_mode: "HTML",
+      },
+    );
+
+    ctx.reply("Select a user:", {
+      reply_markup: limitConnectionMenu,
+    });
+
+    ctx.session.waitForLimitConnection = false;
+    ctx.session.limitConnectionId = -1;
+    ctx.session.waitForLimitConnectionMsgIds = [];
+  });
 
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
@@ -339,7 +489,9 @@ bot
       return;
     }
 
-    const result = execSync(`${scripts.run} 3`, { input: msg }).toString();
+    const result = execSync(`${scripts.run} 3`, {
+      input: msg.trim(),
+    }).toString();
 
     // let isDone = result.includes("Done");
 
