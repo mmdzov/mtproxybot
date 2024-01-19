@@ -175,17 +175,23 @@ const addSecretMenu = new Menu("add-secret")
       } catch (e) {}
 
       try {
-        await ctx.reply(`
-secret added successfully
+        await ctx.reply(
+          `
+Secret added successfully
 <pre>
 Username: ${user}
 Secret: ${secret}
 </pre>
-    `);
+    `,
+          {
+            reply_markup: "HTML",
+          },
+        );
       } catch (e) {}
 
       ctx.session.waitForNewSecret = false;
       ctx.session.waitForNewSecretMsgIds = [];
+      ctx.session.usernameSecret = "";
 
       ctx.reply("Select an option:", {
         reply_markup: mainMenu,
@@ -275,6 +281,7 @@ bot
     const res = await ctx.reply(
       `
 Please Enter your secret 
+
 Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
 
 You can create your own secret from http://seriyps.ru/mtpgen.html.
@@ -295,6 +302,64 @@ You can also generate your secret randomly through the Generate button
     // const result = execSync(`${scripts.run} 4`, { input: msg }).toString();
 
     // console.log(result);
+  });
+
+bot
+  .filter((ctx) => ctx.session.waitForNewSecret)
+  .on("message", async (ctx) => {
+    const msg = ctx.message?.text;
+    const pattern = /^[0-9a-f]{32}$/g;
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForNewSecretMsgIds]);
+    } catch (e) {}
+
+    if (!msg || !pattern.test(msg)) {
+      const res = await ctx.reply(
+        `
+Error: Wrong secret text or pattern
+
+Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
+`,
+        {
+          reply_markup: addSecretMenu,
+        },
+      );
+
+      ctx.session.waitForNewSecretMsgIds.push(res.message_id);
+
+      return;
+    }
+    const user = ctx.session.usernameSecret;
+
+    const result = execSync(`${scripts.run} 4`, {
+      input: `${user}\n1\n${secret}\n`,
+    }).toString();
+
+    try {
+      await ctx.reply(
+        `
+  Secret added successfully
+  <pre>
+  Username: ${user}
+  Secret: ${msg}
+  </pre>
+      `,
+        {
+          reply_markup: "HTML",
+        },
+      );
+    } catch (e) {}
+
+    ctx.session.waitForNewSecret = false;
+    ctx.session.waitForNewSecretMsgIds = [];
+    ctx.session.usernameSecret = "";
+
+    ctx.reply("Select an option:", {
+      reply_markup: mainMenu,
+    });
   });
 
 bot.command("start", (ctx) => {
