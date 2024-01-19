@@ -179,6 +179,19 @@ const mainMenu = new Menu("main-menu")
     );
   })
   .text("New Tag", async (ctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "There is no proxy yet",
+      });
+      return;
+    }
+
     const res = await ctx.editMessageText(
       "Send me your AD Tag that you received from @mtproxybot",
       {
@@ -199,7 +212,7 @@ const mainMenu = new Menu("main-menu")
 
     if (!proxies || !proxies?.trim()) {
       await ctx.answerCallbackQuery({
-        text: "There is no secret yet",
+        text: "There is no proxy yet",
       });
       return;
     }
