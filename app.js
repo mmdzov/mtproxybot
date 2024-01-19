@@ -73,55 +73,7 @@ const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
 });
 
-const addSecretMenu = new Menu("back-to-main")
-  .text(
-    "Generate",
-    (ctx, next) => ctx.session.waitForNewSecret && next(),
-    async (ctx) => {
-      const secret = randomSecret();
-
-      const user = ctx.session.usernameSecret;
-
-      const result = execSync(`${scripts.run} 4`, {
-        input: `${user}\n${secret}`,
-      }).toString();
-
-      const msgId = ctx.callbackQuery.message.message_id;
-
-      try {
-        await ctx.deleteMessages([
-          msgId,
-          ...ctx.session.waitForNewSecretMsgIds,
-        ]);
-      } catch (e) {}
-
-      try {
-        await ctx.reply(`
-secret added successfully
-<pre>
-Username: ${user}
-Secret: ${secret}
-</pre>
-    `);
-      } catch (e) {}
-
-      ctx.session.waitForNewSecret = false;
-      ctx.session.waitForNewSecretMsgIds = [];
-
-      ctx.reply("Select an option:", {
-        reply_markup: mainMenu,
-      });
-
-      console.log("from generate secret:", result);
-    },
-  )
-  .back("<< Back", (ctx) => {
-    ctx.editMessageText("Select an option:");
-  });
-
 bot.use(backToMainMenu);
-bot.use(addSecretMenu);
-
 const mainMenu = new Menu("main-menu")
   .text("View all links", (ctx) => {
     exec(`${scripts.run} 1`, async (err, stdout, stderr) => {
@@ -193,10 +145,57 @@ Warning! Do not use special characters like " , ' , $ or... for username
     waitForNewSecretUsernameMsgIds = [ctx.callbackQuery.message.message_id];
   });
 
-mainMenu.register(backToMainMenu);
-mainMenu.register(addSecretMenu);
+const addSecretMenu = new Menu("add-secret")
+  .text(
+    "Generate",
+    (ctx, next) => ctx.session.waitForNewSecret && next(),
+    async (ctx) => {
+      const secret = randomSecret();
+
+      const user = ctx.session.usernameSecret;
+
+      const result = execSync(`${scripts.run} 4`, {
+        input: `${user}\n${secret}`,
+      }).toString();
+
+      const msgId = ctx.callbackQuery.message.message_id;
+
+      try {
+        await ctx.deleteMessages([
+          msgId,
+          ...ctx.session.waitForNewSecretMsgIds,
+        ]);
+      } catch (e) {}
+
+      try {
+        await ctx.reply(`
+secret added successfully
+<pre>
+Username: ${user}
+Secret: ${secret}
+</pre>
+    `);
+      } catch (e) {}
+
+      ctx.session.waitForNewSecret = false;
+      ctx.session.waitForNewSecretMsgIds = [];
+
+      ctx.reply("Select an option:", {
+        reply_markup: mainMenu,
+      });
+
+      console.log("from generate secret:", result);
+    },
+  )
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("Select an option:");
+  });
 
 bot.use(mainMenu);
+bot.use(addSecretMenu);
+
+mainMenu.register(backToMainMenu);
+mainMenu.register(addSecretMenu);
 
 bot
   .filter((ctx) => ctx.session.waitForAdTag)
