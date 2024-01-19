@@ -172,9 +172,9 @@ const limitConnectionMenu = new Menu("limit-connection")
         .text(user, async (ctx) => {
           //   console.log(i, i + 1);
 
-          const proxyIndex = i + 1;
+          const proxyIndex = +i + 1;
 
-            console.log("proxyIndex:",proxyIndex)
+            console.log("proxyIndex:",proxyIndex,typeof i)
 
           const result = execSync(`echo ${scripts.run}`, {
             input: `6\n${proxyIndex}\n`,
