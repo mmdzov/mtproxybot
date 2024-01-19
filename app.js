@@ -399,7 +399,6 @@ bot.use(addSecretMenu);
 bot.use(limitConnectionMenu);
 
 mainMenu.register(backToMainMenu);
-mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
 mainMenu.register(backToLimitConnectionMenu);
