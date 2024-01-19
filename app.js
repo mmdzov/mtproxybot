@@ -77,30 +77,25 @@ bot.use(backToMainMenu);
 
 const revokeSecretMenu = new Menu("revoke-secret")
   .dynamic(async (dctx) => {
-    let users = "";
+    const proxies = execSync(`${scripts.run} 1`).toString();
 
-    try {
-      users = execSync(`${scripts.run} 5`).toString();
-    } catch (e) {
-      console.log(e?.stderr?.toString(), e);
-    }
-
-    if (!users || !users?.trim()) {
+    if (!proxies || !proxies?.trim()) {
       await dctx.answerCallbackQuery({
         text: "There is no secret yet",
       });
       return;
     }
 
-    const usersArr = users
+    const users = proxies
       .split("\n")
       .filter((item) => item)
-      .map((item) => item?.trim()?.split(" ").slice(-1)[0]);
+      .slice(1)
+      .map((item) => item.split(" ")[0].split(":").join(""));
 
     const range = new MenuRange();
 
-    for (let i in usersArr) {
-      const user = usersArr[i];
+    for (let i in users) {
+      const user = users[i];
 
       range
         .text(user, async (ctx) => {
@@ -184,12 +179,9 @@ const mainMenu = new Menu("main-menu")
   })
   .row()
   .text("Revoke secret", (ctx) => {
-    const users = execSync(`${scripts.run} 5`, { input: "2" }).toString();
-
-    console.log(users);
-    // ctx.editMessageText("select a user", {
-    //   reply_markup: revokeSecretMenu,
-    // });
+    ctx.editMessageText("select a user", {
+      reply_markup: revokeSecretMenu,
+    });
   })
   .text("New secret", (ctx) => {
     ctx.editMessageText(
