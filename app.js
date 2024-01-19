@@ -190,7 +190,20 @@ const mainMenu = new Menu("main-menu")
     waitForAdTagMsgIds = [ctx.callbackQuery.message.message_id, res.message_id];
   })
   .row()
-  .text("Revoke secret", (ctx) => {
+  .text("Revoke secret", async (ctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "There is no secret yet",
+      });
+      return;
+    }
+
     ctx.editMessageText("select a user", {
       reply_markup: revokeSecretMenu,
     });
