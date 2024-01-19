@@ -162,7 +162,7 @@ const addSecretMenu = new Menu("add-secret")
       console.log(user, secret);
 
       const result = execSync(`${scripts.run} 4`, {
-        input: `${user}\n${secret}\n`,
+        input: `${user}\n1\n${secret}\n`,
       }).toString();
 
       const msgId = ctx.callbackQuery.message.message_id;
