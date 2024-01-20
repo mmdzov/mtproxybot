@@ -41,3 +41,7 @@ npm i
 npm start
 ```
 
+## bot commands
+
+1. /start - start the bot
+2. /reset - Reset bot status ( not proxy )
