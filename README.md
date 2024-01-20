@@ -52,14 +52,14 @@ nano .env
 ```
 TOKEN=YOUR_BOT_TOKEN
 
-USER_ID=YOUR_USER_ID
+USER_IDS=YOUR_USER_ID
 ```
 #### Note: You can define multiple admins. The only thing you have to do is to separate the users defined in the USER_IDS field with commas ( , ). for example: 
 
 ```
 TOKEN=YOUR_BOT_TOKEN
 
-USER_ID=YOUR_USER_ID_1,YOUR_USER_ID_2,YOUR_USER_ID_3
+USER_IDS=YOUR_USER_ID_1,YOUR_USER_ID_2,YOUR_USER_ID_3
 ```
 
 12. Save the changes with `CTRL + X`, then `y` and finally `enter`
