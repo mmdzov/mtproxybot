@@ -86,38 +86,37 @@ const backToLimitConnectionMenu = new Menu("back-to-limit-connection").back(
   },
 );
 
-const backToExpiryDateMenu = new Menu("back-to-expiry-date").text('Clear',async (ctx) => {
+const backToExpiryDateMenu = new Menu("back-to-expiry-date")
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("Select a user:");
+  })
+  .text("Clear", async (ctx) => {
     const result = execSync(`${scripts.run} 7`, {
-        input: `${ctx.session.expiryDateId}\n\n`,
-      }).toString();
+      input: `${ctx.session.expiryDateId}\n\n`,
+    }).toString();
 
-      await ctx.reply(
-        `
+    await ctx.reply(
+      `
 expiry date successfully changed: 
 <pre>
 User: ${ctx.session.expiryDateUsername} 
-Expire at: ${msg}
+Expire at: unlimited
 
 </pre>`,
-        {
-          parse_mode: "HTML",
-        },
-      );
-  
-      ctx.reply("Select a user:", {
-        reply_markup: expiryDateMenu,
-      });
-  
-      ctx.session.waitForExpiryDate = false;
-      ctx.session.expiryDateId = -1;
-      ctx.session.expiryDateUsername = "";
-      ctx.session.waitForExpiryDateMsgIds = [];
-}).back(
-  "<< Back",
-  (ctx) => {
-    ctx.editMessageText("Select a user:");
-  },
-);
+      {
+        parse_mode: "HTML",
+      },
+    );
+
+    ctx.reply("Select a user:", {
+      reply_markup: expiryDateMenu,
+    });
+
+    ctx.session.waitForExpiryDate = false;
+    ctx.session.expiryDateId = -1;
+    ctx.session.expiryDateUsername = "";
+    ctx.session.waitForExpiryDateMsgIds = [];
+  });
 
 const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
@@ -594,7 +593,7 @@ Max users: ${msg}
     ctx.session.waitForLimitConnectionMsgIds = [];
   });
 
-  bot
+bot
   .filter((ctx) => ctx.session.waitForExpiryDate)
   .on("message", async (ctx) => {
     const msg = ctx.message?.text;
@@ -602,10 +601,7 @@ Max users: ${msg}
     const msgId = ctx.message.message_id;
 
     try {
-      await ctx.deleteMessages([
-        msgId,
-        ...ctx.session.waitForExpiryDateMsgIds,
-      ]);
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForExpiryDateMsgIds]);
     } catch (e) {}
 
     const pattern = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/g;
