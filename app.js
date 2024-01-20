@@ -50,6 +50,11 @@ const initial = () => ({
   limitConnectionUsername: "",
   limitConnectionId: -1,
   waitForLimitConnectionMsgIds: [],
+
+  waitForExpiryDate: false,
+  expiryDateUsername: "",
+  expiryDateId: -1,
+  waitForExpiryDateMsgIds: [],
 });
 
 bot.use(
@@ -81,12 +86,46 @@ const backToLimitConnectionMenu = new Menu("back-to-limit-connection").back(
   },
 );
 
+const backToExpiryDateMenu = new Menu("back-to-expiry-date").text('Clear',async (ctx) => {
+    const result = execSync(`${scripts.run} 7`, {
+        input: `${ctx.session.expiryDateId}\n\n`,
+      }).toString();
+
+      await ctx.reply(
+        `
+expiry date successfully changed: 
+<pre>
+User: ${ctx.session.expiryDateUsername} 
+Expire at: ${msg}
+
+</pre>`,
+        {
+          parse_mode: "HTML",
+        },
+      );
+  
+      ctx.reply("Select a user:", {
+        reply_markup: expiryDateMenu,
+      });
+  
+      ctx.session.waitForExpiryDate = false;
+      ctx.session.expiryDateId = -1;
+      ctx.session.expiryDateUsername = "";
+      ctx.session.waitForExpiryDateMsgIds = [];
+}).back(
+  "<< Back",
+  (ctx) => {
+    ctx.editMessageText("Select a user:");
+  },
+);
+
 const backToMainMenu = new Menu("back-to-main").back("<< Back", (ctx) => {
   ctx.editMessageText("select an option:");
 });
 
 bot.use(backToMainMenu);
 bot.use(backToLimitConnectionMenu);
+bot.use(backToExpiryDateMenu);
 
 const revokeSecretMenu = new Menu("revoke-secret")
   .dynamic(async (dctx) => {
@@ -171,19 +210,7 @@ const limitConnectionMenu = new Menu("limit-connection")
 
       range
         .text(user, async (ctx) => {
-          //   console.log(i, i + 1);
-
           const proxyIndex = +i + 1;
-
-          //   const result = execSync(`${scripts.run}`, {
-          //     input: `6\n${proxyIndex}\n`,
-          //   }).toString();
-
-          //   try {
-          //     await ctx.answerCallbackQuery({
-          //       text: "successfully changed",
-          //     });
-          //   } catch (e) {}
 
           const res = await ctx.editMessageText(
             `
@@ -198,6 +225,63 @@ Please enter the max users that you want to connect to this user
           ctx.session.limitConnectionId = proxyIndex;
           ctx.session.limitConnectionUsername = user;
           ctx.session.waitForLimitConnectionMsgIds = [
+            res.message_id,
+            ctx.callbackQuery.message.message_id,
+          ];
+        })
+        .row();
+    }
+
+    return range;
+  })
+  .row()
+  .back("<< Back", (ctx) => {
+    ctx.editMessageText("select an option:");
+  });
+
+const expiryDateMenu = new Menu("expiry-date")
+  .dynamic(async (dctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await dctx.answerCallbackQuery({
+        text: "There is no proxy yet",
+      });
+      return;
+    }
+
+    const users = proxies
+      .split("\n")
+      .filter((item) => item)
+      .slice(1)
+      .map((item) => item.split(" ")[0].split(":").join(""));
+
+    const range = new MenuRange();
+
+    for (let i in users) {
+      const user = users[i];
+
+      range
+        .text(user, async (ctx) => {
+          const proxyIndex = +i + 1;
+
+          const res = await ctx.editMessageText(
+            `
+Enter the expiry date in format of day/month/year(Example 11/09/2019)
+          `,
+            {
+              reply_markup: backToExpiryDateMenu,
+            },
+          );
+
+          ctx.session.waitForExpiryDate = true;
+          ctx.session.expiryDateId = proxyIndex;
+          ctx.session.expiryDateUsername = user;
+          ctx.session.waitForExpiryDateMsgIds = [
             res.message_id,
             ctx.callbackQuery.message.message_id,
           ];
@@ -321,7 +405,7 @@ Warning! Do not use special characters like " , ' , $ or... for username
     ];
   })
   .row()
-  .text("Limit connection", async (ctx) => {
+  .text("Limits", async (ctx) => {
     let proxies = "";
 
     try {
@@ -337,6 +421,24 @@ Warning! Do not use special characters like " , ' , $ or... for username
 
     ctx.editMessageText("Select a user:", {
       reply_markup: limitConnectionMenu,
+    });
+  })
+  .text("Expiry date", async (ctx) => {
+    let proxies = "";
+
+    try {
+      proxies = execSync(`${scripts.run} 1`).toString();
+    } catch (e) {}
+
+    if (!proxies || !proxies?.trim()) {
+      await ctx.answerCallbackQuery({
+        text: "There is no proxy yet",
+      });
+      return;
+    }
+
+    ctx.editMessageText("Select a user:", {
+      reply_markup: expiryDateMenu,
     });
   });
 
@@ -398,12 +500,15 @@ bot.use(revokeSecretMenu);
 bot.use(mainMenu);
 bot.use(addSecretMenu);
 bot.use(limitConnectionMenu);
+bot.use(expiryDateMenu);
 
 mainMenu.register(backToMainMenu);
 mainMenu.register(addSecretMenu);
 mainMenu.register(revokeSecretMenu);
 mainMenu.register(limitConnectionMenu);
+mainMenu.register(expiryDateMenu);
 limitConnectionMenu.register(backToLimitConnectionMenu);
+expiryDateMenu.register(backToExpiryDateMenu);
 
 bot.command("reset", (ctx) => {
   ctx.session = {
@@ -421,6 +526,11 @@ bot.command("reset", (ctx) => {
     limitConnectionId: -1,
     limitConnectionUsername: "",
     waitForLimitConnectionMsgIds: [],
+
+    waitForExpiryDate: false,
+    expiryDateUsername: "",
+    expiryDateId: -1,
+    waitForExpiryDateMsgIds: [],
   };
 
   ctx.reply("select an option:", {
@@ -445,7 +555,7 @@ bot
     const pattern = /^[0-9]{0,}$/g;
 
     if (!msg || !pattern.test(msg)) {
-      const res = await ctx.reply("Error: Wrong AD Tag text", {
+      const res = await ctx.reply("Error: Wrong limit connection number", {
         reply_markup: backToLimitConnectionMenu,
       });
 
@@ -482,6 +592,62 @@ Max users: ${msg}
     ctx.session.limitConnectionId = -1;
     ctx.session.limitConnectionUsername = "";
     ctx.session.waitForLimitConnectionMsgIds = [];
+  });
+
+  bot
+  .filter((ctx) => ctx.session.waitForExpiryDate)
+  .on("message", async (ctx) => {
+    const msg = ctx.message?.text;
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([
+        msgId,
+        ...ctx.session.waitForExpiryDateMsgIds,
+      ]);
+    } catch (e) {}
+
+    const pattern = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/g;
+
+    if (!msg || !pattern.test(msg)) {
+      const res = await ctx.reply("Error: Wrong expiry date format", {
+        reply_markup: backToExpiryDateMenu,
+      });
+
+      ctx.session.waitForExpiryDateMsgIds.push(res.message_id);
+
+      return;
+    }
+
+    const result = execSync(`${scripts.run} 7`, {
+      input: `${ctx.session.expiryDateId}\n${msg.trim()}\n`,
+    }).toString();
+
+    // let isDone = result.includes("Done");
+
+    // if (isDone) {
+    await ctx.reply(
+      `
+expiry date successfully changed: 
+<pre>
+User: ${ctx.session.expiryDateUsername} 
+Expire at: ${msg}
+
+</pre>`,
+      {
+        parse_mode: "HTML",
+      },
+    );
+
+    ctx.reply("Select a user:", {
+      reply_markup: expiryDateMenu,
+    });
+
+    ctx.session.waitForExpiryDate = false;
+    ctx.session.expiryDateId = -1;
+    ctx.session.expiryDateUsername = "";
+    ctx.session.waitForExpiryDateMsgIds = [];
   });
 
 bot
