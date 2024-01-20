@@ -95,7 +95,7 @@ const backToExpiryDateMenu = new Menu("back-to-expiry-date")
       input: `${ctx.session.expiryDateId}\n\n`,
     }).toString();
 
-    const msgId = ctx.message.message_id;
+    const msgId = ctx.callbackQuery.message.message_id;
 
     try {
       await ctx.deleteMessages([msgId, ...ctx.session.waitForExpiryDateMsgIds]);
