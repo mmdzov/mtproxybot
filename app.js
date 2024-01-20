@@ -31,10 +31,6 @@ let scripts = {
 
 bot = new Bot(process.env.TOKEN);
 
-//   const me = await bot.api.getMe();
-
-//   console.log(me);
-
 const initial = () => ({
   waitForAdTag: false,
   waitForAdTagMsgIds: [],
@@ -129,7 +125,7 @@ Expire at: unlimited
     ctx.session.waitForExpiryDateMsgIds = [];
   });
 
-  const backToQuotaOptionMenu = new Menu("back-to-quota-option")
+const backToQuotaOptionMenu = new Menu("back-to-quota-option")
   .back("<< Back", (ctx) => {
     ctx.editMessageText("Select a user:");
   })
@@ -141,7 +137,10 @@ Expire at: unlimited
     const msgId = ctx.callbackQuery.message.message_id;
 
     try {
-      await ctx.deleteMessages([msgId, ...ctx.session.waitForQuotaOptionMsgIds]);
+      await ctx.deleteMessages([
+        msgId,
+        ...ctx.session.waitForQuotaOptionMsgIds,
+      ]);
     } catch (e) {}
 
     await ctx.reply(
@@ -345,7 +344,7 @@ Enter the expiry date in format of day/month/year(Example 11/09/2019)
     ctx.editMessageText("select an option:");
   });
 
-  const quotaOptionMenu = new Menu("quota-option")
+const quotaOptionMenu = new Menu("quota-option")
   .dynamic(async (dctx) => {
     let proxies = "";
 
@@ -546,7 +545,9 @@ Warning! Do not use special characters like " , ' , $ or... for username
     ctx.editMessageText("Select a user:", {
       reply_markup: expiryDateMenu,
     });
-  }).row().text("Quota options",async (ctx) => {
+  })
+  .row()
+  .text("Quota options", async (ctx) => {
     let proxies = "";
 
     try {
@@ -635,6 +636,17 @@ mainMenu.register(quotaOptionMenu);
 limitConnectionMenu.register(backToLimitConnectionMenu);
 expiryDateMenu.register(backToExpiryDateMenu);
 quotaOptionMenu.register(backToQuotaOptionMenu);
+
+bot.use((ctx, next) => {
+  const userIds = process.env.USER_IDS;
+  const users = userIds
+    .split(",")
+    .filter((item) => item)
+    .map((item) => +item.trim());
+  if (!users.includes(ctx.message.message_id)) return;
+
+  return next();
+});
 
 bot.command("reset", (ctx) => {
   ctx.session = {
@@ -778,7 +790,7 @@ Expire at: ${msg}
     ctx.session.waitForExpiryDateMsgIds = [];
   });
 
-  bot
+bot
   .filter((ctx) => ctx.session.waitForQuotaOption)
   .on("message", async (ctx) => {
     const msg = ctx.message?.text;
@@ -800,7 +812,10 @@ Expire at: ${msg}
     const msgId = ctx.message.message_id;
 
     try {
-      await ctx.deleteMessages([msgId, ...ctx.session.waitForQuotaOptionMsgIds]);
+      await ctx.deleteMessages([
+        msgId,
+        ...ctx.session.waitForQuotaOptionMsgIds,
+      ]);
     } catch (e) {}
 
     // let isDone = result.includes("Done");
