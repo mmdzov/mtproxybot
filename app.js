@@ -95,6 +95,12 @@ const backToExpiryDateMenu = new Menu("back-to-expiry-date")
       input: `${ctx.session.expiryDateId}\n\n`,
     }).toString();
 
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForExpiryDateMsgIds]);
+    } catch (e) {}
+
     await ctx.reply(
       `
 expiry date successfully changed: 
@@ -598,12 +604,6 @@ bot
   .on("message", async (ctx) => {
     const msg = ctx.message?.text;
 
-    const msgId = ctx.message.message_id;
-
-    try {
-      await ctx.deleteMessages([msgId, ...ctx.session.waitForExpiryDateMsgIds]);
-    } catch (e) {}
-
     const pattern = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/g;
 
     if (!msg || !pattern.test(msg)) {
@@ -619,6 +619,12 @@ bot
     const result = execSync(`${scripts.run} 7`, {
       input: `${ctx.session.expiryDateId}\n${msg.trim()}\n`,
     }).toString();
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForExpiryDateMsgIds]);
+    } catch (e) {}
 
     // let isDone = result.includes("Done");
 
@@ -652,12 +658,6 @@ bot
     console.log("from message event");
     const msg = ctx.message?.text;
 
-    const msgId = ctx.message.message_id;
-
-    try {
-      await ctx.deleteMessages([msgId, ...ctx.session.waitForAdTagMsgIds]);
-    } catch (e) {}
-
     if (!msg) {
       const res = await ctx.reply("Error: Wrong AD Tag text", {
         reply_markup: backToMainMenu,
@@ -671,6 +671,12 @@ bot
     const result = execSync(`${scripts.run} 3`, {
       input: msg.trim(),
     }).toString();
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForAdTagMsgIds]);
+    } catch (e) {}
 
     // let isDone = result.includes("Done");
 
@@ -751,12 +757,6 @@ bot
     const msg = ctx.message?.text;
     const pattern = /^[0-9a-f]{32}$/g;
 
-    const msgId = ctx.message.message_id;
-
-    try {
-      await ctx.deleteMessages([msgId, ...ctx.session.waitForNewSecretMsgIds]);
-    } catch (e) {}
-
     if (!msg || !pattern.test(msg)) {
       const res = await ctx.reply(
         `
@@ -780,6 +780,12 @@ Note: secret must have 32 characters consisting of numbers 0-9 and a-f.
     const result = execSync(`${scripts.run} 4`, {
       input: `${user}\n1\n${msg?.trim()}\n`,
     }).toString();
+
+    const msgId = ctx.message.message_id;
+
+    try {
+      await ctx.deleteMessages([msgId, ...ctx.session.waitForNewSecretMsgIds]);
+    } catch (e) {}
 
     try {
       await ctx.reply(
