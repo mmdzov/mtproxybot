@@ -41,7 +41,10 @@ npm i
 npm start
 ```
 
-## bot commands
+## Bot commands
 
 1. /start - start the bot
 2. /reset - Reset bot status ( not proxy )
+
+## Screenshots
+![Image can't load](https://github.com/mmdzov/mtproxybot/blob/main/screenshot.png)
