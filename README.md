@@ -52,7 +52,7 @@ nano .env
 ```
 TOKEN=YOUR_BOT_TOKEN
 
-USER_ID=YOUR_USER_ID
+USER_IDS=YOUR_USER_ID
 ```
 12. Save the changes with `CTRL + X`, then `y` and finally `enter`
 
