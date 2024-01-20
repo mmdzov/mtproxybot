@@ -36,7 +36,27 @@ cd mtproxybot
 ```bash
 npm i
 ```
-7. Run the mtproxybot project
+7. Change .env.example to .env
+```bash
+mv .env.example .env
+```
+8. Build your bot on `@botfather` and keep the token with you
+
+9. Get your user ID from the `@userinfobot` bot and keep it with you
+
+10. Open the .env file with nano
+```bash
+nano .env
+```
+11. Put the values ​​received in 8 and 9 in front of =
+```
+TOKEN=YOUR_BOT_TOKEN
+
+USER_ID=YOUR_USER_ID
+```
+12. Save the changes with `CTRL + X`, then `y` and finally `enter`
+
+13. Run the mtproxybot project
 ```bash
 npm start
 ```
