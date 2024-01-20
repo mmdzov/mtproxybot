@@ -643,7 +643,8 @@ bot.use((ctx, next) => {
     .split(",")
     .filter((item) => item)
     .map((item) => +item.trim());
-  if (!users.includes(ctx.message.message_id)) return;
+
+  if (!users.includes(ctx?.from?.id)) return;
 
   return next();
 });
