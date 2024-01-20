@@ -1,6 +1,7 @@
 # Mtproxybot
 
 Manage your mtproto proxies in Telegram bot
+Give a star if you like it 
 
 ## Installation
 1. Install the [MTProtoProxyInstaller](https://github.com/HirbodBehnam/MTProtoProxyInstaller) project
