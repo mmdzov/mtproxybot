@@ -407,7 +407,11 @@ const mainMenu = new Menu("main-menu")
 
     try {
       proxies = execSync(`${scripts.run} 1`);
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
+
+    console.log("proxies:", proxies);
 
     if (!proxies || !proxies?.trim()) {
       await ctx.answerCallbackQuery({
